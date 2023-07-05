@@ -1,0 +1,20 @@
+{
+  "name": "graphql-mesh-testout",
+  "version": "1.0.0",
+  "description": "a poc to test out graphql mesh",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --watch .meshrc.yaml --exec mesh dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Taki Eddine Yamani",
+  "license": "ISC",
+  "dependencies": {
+    "@graphql-mesh/cli": "^0.83.6",
+    "@graphql-mesh/graphql": "^0.94.3",
+    "@graphql-mesh/json-schema": "^0.94.5",
+    "@graphql-mesh/openapi": "^0.94.6",
+    "graphql": "^16.7.1",
+    "nodemon": "^2.0.22"
+  }
+}

@@ -1,0 +1,53 @@
+sources:
+  - name: Chuck Norris
+    handler:
+      jsonSchema:
+        endpoint: https://api.chucknorris.io/
+        operations:
+          - type: Query
+            field: random
+            path: /jokes/random
+            method: GET
+            responseSample: ./src/chuck-norris/random.json
+          - type: Query
+            field: search
+            path: jokes/search?query={args.query}
+            method: GET
+            responseSample: ./src/chuck-norris/search.json
+            argTypeMap:
+              query:
+                type: string
+                nullable: true
+          - type: Query
+            field: categories
+            path: /jokes/categories
+            method: GET
+            responseSample: ./src/chuck-norris/categories.json
+  - name: Pet Store
+    handler:
+      openapi:
+        endpoint: https://petstore.swagger.io/v2
+        source: https://petstore.swagger.io/v2/swagger.json
+  - name: Rick And Morty
+    handler:
+      graphql:
+        endpoint: https://rickandmortyapi.com/graphql
+additionalTypeDefs: |
+  extend type Character { 
+      blague: query_random
+  }
+
+  extend type Character {
+    pet: Pet
+  }
+
+additionalResolvers:
+  - targetTypeName: Character
+    targetFieldName: blague
+    sourceName: Chuck Norris
+    sourceTypeName: Query
+    sourceFieldName: random
+    requiredSelectionSet: |
+      {
+        id
+      }

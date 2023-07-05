@@ -1,0 +1,405 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+directive @example(value: ObjMap) repeatable on FIELD_DEFINITION | OBJECT | INPUT_OBJECT | ENUM | SCALAR
+
+directive @globalOptions(sourceName: String, endpoint: String, operationHeaders: ObjMap, queryStringOptions: ObjMap, queryParams: ObjMap) on OBJECT
+
+directive @httpOperation(path: String, operationSpecificHeaders: ObjMap, httpMethod: HTTPMethod, isBinary: Boolean, requestBaseBody: ObjMap, queryParamArgMap: ObjMap, queryStringOptionsByParam: ObjMap) on FIELD_DEFINITION
+
+directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
+
+directive @enum(value: String) on ENUM_VALUE
+
+type Query @globalOptions(sourceName: "Pet Store", endpoint: "https://petstore.swagger.io/v2") {
+  random: query_random @httpOperation(path: "/jokes/random", httpMethod: GET)
+  search(query: String): query_search @httpOperation(path: "jokes/search?query={args.query}", httpMethod: GET)
+  categories: [String] @httpOperation(path: "/jokes/categories", httpMethod: GET)
+  """Get a specific character by ID"""
+  character(id: ID!): Character
+  """Get the list of all characters"""
+  characters(page: Int, filter: FilterCharacter): Characters
+  """Get a list of characters selected by ids"""
+  charactersByIds(ids: [ID!]!): [Character]
+  """Get a specific locations by ID"""
+  location(id: ID!): Location
+  """Get the list of all locations"""
+  locations(page: Int, filter: FilterLocation): Locations
+  """Get a list of locations selected by ids"""
+  locationsByIds(ids: [ID!]!): [Location]
+  """Get a specific episode by ID"""
+  episode(id: ID!): Episode
+  """Get the list of all episodes"""
+  episodes(page: Int, filter: FilterEpisode): Episodes
+  """Get a list of episodes selected by ids"""
+  episodesByIds(ids: [ID!]!): [Episode]
+  "Multiple status values can be provided with comma separated strings"
+  findPetsByStatus(
+    "Status values that need to be considered for filter"
+    status: [queryInput_findPetsByStatus_status_items]!
+  ): [Pet] @httpOperation(path: "/pet/findByStatus", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET, queryParamArgMap: "{\"status\":\"status\"}")
+  "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
+  findPetsByTags(
+    "Tags to filter by"
+    tags: [String]!
+  ): [Pet] @httpOperation(path: "/pet/findByTags", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET, queryParamArgMap: "{\"tags\":\"tags\"}")
+  "Returns a single pet"
+  getPetById(
+    "ID of pet to return"
+    petId: BigInt!
+  ): Pet! @httpOperation(path: "/pet/{args.petId}", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET)
+  "For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions"
+  getOrderById(
+    "ID of pet that needs to be fetched"
+    orderId: BigInt!
+  ): Order! @httpOperation(path: "/store/order/{args.orderId}", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET)
+  "Returns a map of status codes to quantities"
+  getInventory: JSON @httpOperation(path: "/store/inventory", operationSpecificHeaders: "{\"Accept\":\"application/json\"}", httpMethod: GET)
+  "Get user by user name"
+  getUserByName(
+    "The name that needs to be fetched. Use user1 for testing."
+    username: String!
+  ): User! @httpOperation(path: "/user/{args.username}", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET)
+  "Logs user into the system"
+  loginUser(
+    "The user name for login"
+    username: String!
+    "The password for login in clear text"
+    password: String!
+  ): String @httpOperation(path: "/user/login", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET, queryParamArgMap: "{\"username\":\"username\",\"password\":\"password\"}")
+  "Logs out current logged in user session"
+  logoutUser: JSON @httpOperation(path: "/user/logout", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: GET)
+}
+
+type query_random @example(value: "{\"categories\":[\"fame\"],\"created_at\":\"2020-01-05 13:42:21.795084\",\"icon_url\":\"https://assets.chucknorris.host/img/avatar/chuck-norris.png\",\"id\":\"GjMd_d5KQjOhGLZ0u__LTA\",\"updated_at\":\"2020-01-05 13:42:21.795084\",\"url\":\"https://api.chucknorris.io/jokes/GjMd_d5KQjOhGLZ0u__LTA\",\"value\":\"If there was a game about Chuck Norris you'd be scared to play it because every time you'd open it up it would roundhouse kick you in the balls.\"}") {
+  categories: [String]
+  created_at: String
+  icon_url: URL
+  id: String
+  updated_at: String
+  url: URL
+  value: String
+}
+
+"A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt."
+scalar URL
+
+type query_search @example(value: "{\"total\":5,\"result\":[{\"categories\":[\"animal\"],\"created_at\":\"2020-01-05 13:42:20.841843\",\"icon_url\":\"https://assets.chucknorris.host/img/avatar/chuck-norris.png\",\"id\":\"6aqcOwDJQyeMo9FvUCJjow\",\"updated_at\":\"2020-01-05 13:42:20.841843\",\"url\":\"https://api.chucknorris.io/jokes/6aqcOwDJQyeMo9FvUCJjow\",\"value\":\"Chuck Norris and his Mom have matching tattoos. Left kuckle Right knuckle Chuck Norris . Left foot Right foot Chuck Norris. Only one difference. Above his Mom's hairy mat it reads Hello ! Above Chuck Norris's bearded Ass it simply reads Goodbye.\"},{\"categories\":[],\"created_at\":\"2020-01-05 13:42:22.980058\",\"icon_url\":\"https://assets.chucknorris.host/img/avatar/chuck-norris.png\",\"id\":\"nlvsVqcOQaWezU6I18SzJQ\",\"updated_at\":\"2020-01-05 13:42:22.980058\",\"url\":\"https://api.chucknorris.io/jokes/nlvsVqcOQaWezU6I18SzJQ\",\"value\":\"Hello Kitty has stubby arms because Chuck Norris was feeling hungry.\"},{\"categories\":[],\"created_at\":\"2020-01-05 13:42:26.194739\",\"icon_url\":\"https://assets.chucknorris.host/img/avatar/chuck-norris.png\",\"id\":\"q4kNgA2wQyWKnDj8TVddSQ\",\"updated_at\":\"2020-01-05 13:42:26.194739\",\"url\":\"https://api.chucknorris.io/jokes/q4kNgA2wQyWKnDj8TVddSQ\",\"value\":\"Simon & Garfunkel wrote the lyric 'Hello darkness, my old friend' about the end of several thousand men who saw a Chuck Norris testicle decending to crush their head.\"},{\"categories\":[],\"created_at\":\"2020-01-05 13:42:26.991637\",\"icon_url\":\"https://assets.chucknorris.host/img/avatar/chuck-norris.png\",\"id\":\"0cyirBrJSay5yYEL1yYw_A\",\"updated_at\":\"2020-01-05 13:42:26.991637\",\"url\":\"https://api.chucknorris.io/jokes/0cyirBrJSay5yYEL1yYw_A\",\"value\":\"In the original making of Scarface when Tony said \\\"say hello to my little friend\\\" Chuck Norris appeared. However, the director cut it out said it was too gruesome for a R rated movie.\"},{\"categories\":[],\"created_at\":\"2020-01-05 13:42:30.480041\",\"icon_url\":\"https://assets.chucknorris.host/img/avatar/chuck-norris.png\",\"id\":\"g96iRXO6TPWAgWkrWf_YRQ\",\"updated_at\":\"2020-01-05 13:42:30.480041\",\"url\":\"https://api.chucknorris.io/jokes/g96iRXO6TPWAgWkrWf_YRQ\",\"value\":\"once upon a time Chuck Norris seen a mime\\\"hello\\\" said chuck the mime didnt answer so he round house kicked him to death.\"}]}") {
+  total: Int
+  result: [query_search_result_items]
+}
+
+type query_search_result_items {
+  categories: [String]
+  created_at: String
+  icon_url: URL
+  id: String
+  updated_at: String
+  url: URL
+  value: String
+}
+
+scalar ObjMap
+
+enum HTTPMethod {
+  GET
+  HEAD
+  POST
+  PUT
+  DELETE
+  CONNECT
+  OPTIONS
+  TRACE
+  PATCH
+}
+
+type Character {
+  """The id of the character."""
+  id: ID
+  """The name of the character."""
+  name: String
+  """The status of the character ('Alive', 'Dead' or 'unknown')."""
+  status: String
+  """The species of the character."""
+  species: String
+  """The type or subspecies of the character."""
+  type: String
+  """
+  The gender of the character ('Female', 'Male', 'Genderless' or 'unknown').
+  """
+  gender: String
+  """The character's origin location"""
+  origin: Location
+  """The character's last known location"""
+  location: Location
+  """
+  Link to the character's image.
+  All images are 300x300px and most are medium shots or portraits since they are intended to be used as avatars.
+  """
+  image: String
+  """Episodes in which this character appeared."""
+  episode: [Episode]!
+  """Time at which the character was created in the database."""
+  created: String
+  blague: query_random
+  pet: Pet
+}
+
+type Location {
+  """The id of the location."""
+  id: ID
+  """The name of the location."""
+  name: String
+  """The type of the location."""
+  type: String
+  """The dimension in which the location is located."""
+  dimension: String
+  """List of characters who have been last seen in the location."""
+  residents: [Character]!
+  """Time at which the location was created in the database."""
+  created: String
+}
+
+type Episode {
+  """The id of the episode."""
+  id: ID
+  """The name of the episode."""
+  name: String
+  """The air date of the episode."""
+  air_date: String
+  """The code of the episode."""
+  episode: String
+  """List of characters who have been seen in the episode."""
+  characters: [Character]!
+  """Time at which the episode was created in the database."""
+  created: String
+}
+
+input FilterCharacter {
+  name: String
+  status: String
+  species: String
+  type: String
+  gender: String
+}
+
+type Characters {
+  info: Info
+  results: [Character]
+}
+
+type Info {
+  """The length of the response."""
+  count: Int
+  """The amount of pages."""
+  pages: Int
+  """Number of the next page (if it exists)"""
+  next: Int
+  """Number of the previous page (if it exists)"""
+  prev: Int
+}
+
+input FilterLocation {
+  name: String
+  type: String
+  dimension: String
+}
+
+type Locations {
+  info: Info
+  results: [Location]
+}
+
+input FilterEpisode {
+  name: String
+  episode: String
+}
+
+type Episodes {
+  info: Info
+  results: [Episode]
+}
+
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type Mutation {
+  "uploads an image"
+  uploadFile(
+    "ID of pet to update"
+    petId: BigInt!
+  ): ApiResponse @httpOperation(path: "/pet/{args.petId}/uploadImage", operationSpecificHeaders: "{\"Content-Type\":\"multipart/form-data\",\"Accept\":\"application/json\"}", httpMethod: POST)
+  "Add a new pet to the store"
+  addPet(input: Pet_Input!): JSON @httpOperation(path: "/pet", operationSpecificHeaders: "{\"Content-Type\":\"application/json, application/xml\",\"Accept\":\"application/json, application/xml\"}", httpMethod: POST)
+  "Update an existing pet"
+  updatePet(input: Pet_Input!): JSON @httpOperation(path: "/pet", operationSpecificHeaders: "{\"Content-Type\":\"application/json, application/xml\",\"Accept\":\"application/json, application/xml\"}", httpMethod: PUT)
+  "Updates a pet in the store with form data"
+  updatePetWithForm(
+    "ID of pet that needs to be updated"
+    petId: BigInt!
+  ): JSON @httpOperation(path: "/pet/{args.petId}", operationSpecificHeaders: "{\"Content-Type\":\"application/x-www-form-urlencoded\",\"Accept\":\"application/json, application/xml\"}", httpMethod: POST)
+  "Deletes a pet"
+  deletePet(
+    api_key: String
+    "Pet id to delete"
+    petId: BigInt!
+  ): JSON @httpOperation(path: "/pet/{args.petId}", operationSpecificHeaders: "{\"api_key\":\"{args.api_key}\",\"Accept\":\"application/json, application/xml\"}", httpMethod: DELETE)
+  "Place an order for a pet"
+  placeOrder(input: Order_Input!): Order! @httpOperation(path: "/store/order", operationSpecificHeaders: "{\"Content-Type\":\"application/json\",\"Accept\":\"application/json, application/xml\"}", httpMethod: POST)
+  "For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors"
+  deleteOrder(
+    "ID of the order that needs to be deleted"
+    orderId: BigInt!
+  ): JSON @httpOperation(path: "/store/order/{args.orderId}", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: DELETE)
+  "Creates list of users with given input array"
+  createUsersWithArrayInput(
+    "List of user object"
+    input: [User_Input]!
+  ): JSON @httpOperation(path: "/user/createWithArray", operationSpecificHeaders: "{\"Content-Type\":\"application/json\",\"Accept\":\"application/json, application/xml\"}", httpMethod: POST)
+  "Creates list of users with given input array"
+  createUsersWithListInput(
+    "List of user object"
+    input: [User_Input]!
+  ): JSON @httpOperation(path: "/user/createWithList", operationSpecificHeaders: "{\"Content-Type\":\"application/json\",\"Accept\":\"application/json, application/xml\"}", httpMethod: POST)
+  "This can only be done by the logged in user."
+  updateUser(
+    "name that need to be updated"
+    username: String!
+    input: User_Input!
+  ): JSON @httpOperation(path: "/user/{args.username}", operationSpecificHeaders: "{\"Content-Type\":\"application/json\",\"Accept\":\"application/json, application/xml\"}", httpMethod: PUT)
+  "This can only be done by the logged in user."
+  deleteUser(
+    "The name that needs to be deleted"
+    username: String!
+  ): JSON @httpOperation(path: "/user/{args.username}", operationSpecificHeaders: "{\"Accept\":\"application/json, application/xml\"}", httpMethod: DELETE)
+  "This can only be done by the logged in user."
+  createUser(input: User_Input!): JSON @httpOperation(path: "/user", operationSpecificHeaders: "{\"Content-Type\":\"application/json\",\"Accept\":\"application/json, application/xml\"}", httpMethod: POST)
+}
+
+"Pet object that needs to be added to the store"
+type Pet {
+  id: BigInt
+  category: Category
+  name: String!
+  photoUrls: [String]!
+  tags: [Tag]
+  status: mutationInput_addPet_input_status
+}
+
+"The `BigInt` scalar type represents non-fractional signed whole numeric values."
+scalar BigInt
+
+type Category {
+  id: BigInt
+  name: String
+}
+
+type Tag {
+  id: BigInt
+  name: String
+}
+
+"pet status in the store"
+enum mutationInput_addPet_input_status {
+  available
+  pending
+  sold
+}
+
+enum queryInput_findPetsByStatus_status_items {
+  available
+  pending
+  sold
+}
+
+"order placed for purchasing the pet"
+type Order {
+  id: BigInt
+  petId: BigInt
+  quantity: Int
+  shipDate: DateTime
+  status: mutation_placeOrder_status
+  complete: Boolean
+}
+
+"A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar."
+scalar DateTime
+
+"Order Status"
+enum mutation_placeOrder_status {
+  placed
+  approved
+  delivered
+}
+
+"The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+"Updated user object"
+type User {
+  id: BigInt
+  username: String
+  firstName: String
+  lastName: String
+  email: String
+  password: String
+  phone: String
+  "User Status"
+  userStatus: Int
+}
+
+type ApiResponse {
+  code: Int
+  type: String
+  message: String
+}
+
+"Pet object that needs to be added to the store"
+input Pet_Input {
+  id: BigInt
+  category: Category_Input
+  name: String!
+  photoUrls: [String]!
+  tags: [Tag_Input]
+  status: mutationInput_addPet_input_status
+}
+
+input Category_Input {
+  id: BigInt
+  name: String
+}
+
+input Tag_Input {
+  id: BigInt
+  name: String
+}
+
+"order placed for purchasing the pet"
+input Order_Input {
+  id: BigInt
+  petId: BigInt
+  quantity: Int
+  shipDate: DateTime
+  status: mutation_placeOrder_status
+  complete: Boolean
+}
+
+"Updated user object"
+input User_Input {
+  id: BigInt
+  username: String
+  firstName: String
+  lastName: String
+  email: String
+  password: String
+  phone: String
+  "User Status"
+  userStatus: Int
+}
